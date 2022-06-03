@@ -45,12 +45,34 @@ app.get("/:id", (req, res) => {
   });
 });
 
+app.get("/notes/:id", (req, res) => {
+  const { id } = req.params;
+  const sql =
+    "SELECT noteText, DATE_FORMAT(postDate, '%b %D, %l:%i%p') AS date, id FROM gameNotes WHERE gameId = ?";
+
+  connection.query(sql, [id], (error, results) => {
+    if (error) throw error;
+
+    res.send(results);
+  });
+});
+
 app.post("/", (req, res) => {
-  console.log(req.body);
   const { title, imgSrc } = req.body;
   const sql = "INSERT INTO gameList SET ?"; //yeah yeah I know, wrong naming convention, lick my booty
 
   connection.query(sql, { title, imgSrc }, (error, results) => {
+    if (error) throw error;
+    console.log(results);
+  });
+});
+
+app.post("/:id", (req, res) => {
+  console.log(req.body);
+  const { noteText, gameId } = req.body;
+  const sql = "INSERT INTO gameNotes SET ?";
+  // only inserting the gameId and noteText, everything else is automatically added
+  connection.query(sql, { gameId, noteText }, (error, results) => {
     if (error) throw error;
     console.log(results);
   });
