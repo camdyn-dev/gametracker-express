@@ -3,6 +3,8 @@ const { SQL_USER, SQL_PASSWORD } = process.env;
 const express = require("express");
 const app = express();
 
+const cors = require("cors");
+
 const mysql = require("mysql");
 const connection = mysql.createConnection({
   host: "localhost",
@@ -10,6 +12,8 @@ const connection = mysql.createConnection({
   password: SQL_PASSWORD,
   database: "games",
 });
+
+app.use(cors());
 
 connection.connect(function (err) {
   if (err) {
