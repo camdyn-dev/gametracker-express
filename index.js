@@ -15,6 +15,9 @@ const connection = mysql.createConnection({
 
 app.use(cors());
 
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
 connection.connect(function (err) {
   if (err) {
     console.log(err.stack);
@@ -34,6 +37,7 @@ app.get("/", (req, res) => {
 });
 
 app.post("/", (req, res) => {
+  console.log(req.body);
   const { title, imgSrc } = req.body;
   const sql = "INSERT INTO gameList SET ?"; //yeah yeah I know, wrong naming convention, lick my booty
 
