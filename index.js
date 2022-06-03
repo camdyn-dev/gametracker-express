@@ -29,9 +29,18 @@ connection.connect(function (err) {
 
 app.get("/", (req, res) => {
   const sql = "SELECT * FROM gameList";
-
   connection.query(sql, (error, results) => {
-    console.log(results);
+    if (error) throw error;
+    res.send(results);
+  });
+});
+
+app.get("/:id", (req, res) => {
+  const { id } = req.params;
+  const sql = "SELECT * FROM gameList WHERE id = ?";
+  connection.query(sql, [id], (error, results) => {
+    if (error) throw error;
+
     res.send(results);
   });
 });
