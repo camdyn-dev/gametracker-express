@@ -68,11 +68,40 @@ app.post("/", (req, res) => {
 });
 
 app.post("/:id", (req, res) => {
-  console.log(req.body);
   const { noteText, gameId } = req.body;
   const sql = "INSERT INTO gameNotes SET ?";
   // only inserting the gameId and noteText, everything else is automatically added
   connection.query(sql, { gameId, noteText }, (error, results) => {
+    if (error) throw error;
+    console.log(results);
+  });
+});
+
+app.delete("/games/:id", async (req, res) => {
+  const { id } = req.params;
+  const sql = "DELETE FROM gameList WHERE id = ?";
+  const sql2 = "DELETE FROM gameNotes WHERE gameId = ?";
+  //could possibly make this one delete route with the param? sounds kind of unnecessary tho
+  connection.query(sql2, [id], (error, results) => {
+    if (error) throw error;
+    console.log(results);
+  });
+  connection.query(sql, [id], (error, results) => {
+    if (error) throw error;
+    console.log(results);
+  });
+  //have to be in this order or foreign key constraints yknow
+}); //so, usually I'd want to just chain queries, but I don't like the security implications of enabling it (increases chance of successful SQL injections)
+//I mean, for this app, not that big of a deal (at least right now), but still best practice.
+//I have two options
+//1: Seperate queries : maybe a little slower? but that really doesn't matter, gonna do that for now
+//2: Trigger inside of MYSQL : Would be a pain in the ass to debug if something goes wrong, and especially when I rewrite my tables, but I'll prob add it in cause it's cool
+
+app.delete("/notes/:id", (req, res) => {
+  const { id } = req.params;
+  const sql = "DELETE FROM gameNotes WHERE id = ?";
+  //could possibly make this one delete route with the param? sounds kind of unnecessary tho
+  connection.query(sql, [id], (error, results) => {
     if (error) throw error;
     console.log(results);
   });
