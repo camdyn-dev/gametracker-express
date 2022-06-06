@@ -77,6 +77,16 @@ app.post("/:id", (req, res) => {
   });
 });
 
+app.put("/notes/:id", (req, res) => {
+  const { id } = req.params;
+  const { noteText } = req.body.newItems;
+  const sql = "UPDATE gameNotes SET noteText = ? WHERE id = ?";
+  connection.query(sql, [noteText, id], (error, results) => {
+    if (error) throw error;
+    console.log(results);
+  });
+});
+
 app.delete("/games/:id", async (req, res) => {
   const { id } = req.params;
   const sql = "DELETE FROM gameList WHERE id = ?";
