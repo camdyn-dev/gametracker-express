@@ -58,10 +58,10 @@ app.get("/notes/:id", (req, res) => {
 });
 
 app.post("/", (req, res) => {
-  const { title, imgSrc } = req.body;
+  const { title, imgSrc, completed } = req.body;
   const sql = "INSERT INTO gameList SET ?"; //yeah yeah I know, wrong naming convention, lick my booty
 
-  connection.query(sql, { title, imgSrc }, (error, results) => {
+  connection.query(sql, { title, imgSrc, completed }, (error, results) => {
     if (error) throw error;
     console.log(results);
   });
