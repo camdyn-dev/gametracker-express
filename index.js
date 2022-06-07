@@ -28,7 +28,7 @@ connection.connect(function (err) {
 });
 
 app.get("/", (req, res) => {
-  const sql = "SELECT * FROM gameList";
+  const sql = "SELECT * FROM game_list";
   connection.query(sql, (error, results) => {
     if (error) throw error;
     res.send(results);
@@ -37,7 +37,7 @@ app.get("/", (req, res) => {
 
 app.get("/:id", (req, res) => {
   const { id } = req.params;
-  const sql = "SELECT * FROM gameList WHERE id = ?";
+  const sql = "SELECT * FROM game_list WHERE id = ?";
   connection.query(sql, [id], (error, results) => {
     if (error) throw error;
 
@@ -48,7 +48,7 @@ app.get("/:id", (req, res) => {
 app.get("/notes/:id", (req, res) => {
   const { id } = req.params;
   const sql =
-    "SELECT noteText, DATE_FORMAT(postDate, '%b %D, %l:%i%p') AS date, id FROM gameNotes WHERE gameId = ?";
+    "SELECT note, DATE_FORMAT(post_date, '%b %D, %l:%i%p') AS post_date, id FROM game_notes WHERE game_id = ?";
 
   connection.query(sql, [id], (error, results) => {
     if (error) throw error;
@@ -58,20 +58,24 @@ app.get("/notes/:id", (req, res) => {
 });
 
 app.post("/", (req, res) => {
-  const { title, imgSrc, completed } = req.body;
-  const sql = "INSERT INTO gameList SET ?"; //yeah yeah I know, wrong naming convention, lick my booty
+  const { title, image_source, status, priority, rating } = req.body;
+  const sql = "INSERT INTO game_list SET ?"; //yeah yeah I know, wrong naming convention, lick my booty
 
-  connection.query(sql, { title, imgSrc, completed }, (error, results) => {
-    if (error) throw error;
-    console.log(results);
-  });
+  connection.query(
+    sql,
+    { title, image_source, status, priority, rating },
+    (error, results) => {
+      if (error) throw error;
+      console.log(results);
+    }
+  );
 });
 
 app.post("/:id", (req, res) => {
-  const { noteText, gameId } = req.body;
-  const sql = "INSERT INTO gameNotes SET ?";
+  const { note, game_id } = req.body;
+  const sql = "INSERT INTO game_notes SET ?";
   // only inserting the gameId and noteText, everything else is automatically added
-  connection.query(sql, { gameId, noteText }, (error, results) => {
+  connection.query(sql, { game_id, note }, (error, results) => {
     if (error) throw error;
     console.log(results);
   });
@@ -79,20 +83,28 @@ app.post("/:id", (req, res) => {
 
 app.put("/games/:id", (req, res) => {
   const { id } = req.params;
-  const { title, imgSrc, completed } = req.body;
+  const { title, image_source, status, priority, rating } = req.body;
   const sql =
-    "UPDATE gameList SET title = ?, imgSrc = ?, completed = ? WHERE id = ?";
-  connection.query(sql, [title, imgSrc, completed, id], (error, results) => {
-    if (error) throw error;
-    console.log(results);
-  });
+    "UPDATE game_list SET title = ?, image_source = ?, status = ?, priority = ?, rating = ? WHERE id = ?";
+  connection.query(
+    sql,
+    [title, image_source, status, priority, rating, id],
+    (error, results) => {
+      if (error) throw error;
+      console.log(results);
+    }
+  );
 });
 
 app.put("/notes/:id", (req, res) => {
+  const modificationDate = new Date()
+    .toISOString()
+    .slice(0, 19)
+    .replace("T", " "); //this works to update it omegakekw
   const { id } = req.params;
-  const { noteText } = req.body.newItems;
-  const sql = "UPDATE gameNotes SET noteText = ? WHERE id = ?";
-  connection.query(sql, [noteText, id], (error, results) => {
+  const { note } = req.body.newItems;
+  const sql = "UPDATE game_notes SET note = ?, last_modified = ? WHERE id = ?";
+  connection.query(sql, [note, modificationDate, id], (error, results) => {
     if (error) throw error;
     console.log(results);
   });
@@ -100,8 +112,8 @@ app.put("/notes/:id", (req, res) => {
 
 app.delete("/games/:id", async (req, res) => {
   const { id } = req.params;
-  const sql = "DELETE FROM gameList WHERE id = ?";
-  const sql2 = "DELETE FROM gameNotes WHERE gameId = ?";
+  const sql = "DELETE FROM game_list WHERE id = ?";
+  const sql2 = "DELETE FROM game_notes WHERE game_id = ?";
   //could possibly make this one delete route with the param? sounds kind of unnecessary tho
   connection.query(sql2, [id], (error, results) => {
     if (error) throw error;
@@ -120,7 +132,7 @@ app.delete("/games/:id", async (req, res) => {
 
 app.delete("/notes/:id", (req, res) => {
   const { id } = req.params;
-  const sql = "DELETE FROM gameNotes WHERE id = ?";
+  const sql = "DELETE FROM game_notes WHERE id = ?";
   //could possibly make this one delete route with the param? sounds kind of unnecessary tho
   connection.query(sql, [id], (error, results) => {
     if (error) throw error;
