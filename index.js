@@ -77,6 +77,17 @@ app.post("/:id", (req, res) => {
   });
 });
 
+app.put("/games/:id", (req, res) => {
+  const { id } = req.params;
+  const { title, imgSrc, completed } = req.body;
+  const sql =
+    "UPDATE gameList SET title = ?, imgSrc = ?, completed = ? WHERE id = ?";
+  connection.query(sql, [title, imgSrc, completed, id], (error, results) => {
+    if (error) throw error;
+    console.log(results);
+  });
+});
+
 app.put("/notes/:id", (req, res) => {
   const { id } = req.params;
   const { noteText } = req.body.newItems;
