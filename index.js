@@ -97,14 +97,11 @@ app.put("/games/:id", (req, res) => {
 });
 
 app.put("/notes/:id", (req, res) => {
-  const modificationDate = new Date()
-    .toISOString()
-    .slice(0, 19)
-    .replace("T", " "); //this works to update it omegakekw
+  const last_modified = new Date(); //god I love the built in escaping and conversions with mysql npm
   const { id } = req.params;
   const { note } = req.body.newItems;
   const sql = "UPDATE game_notes SET note = ?, last_modified = ? WHERE id = ?";
-  connection.query(sql, [note, modificationDate, id], (error, results) => {
+  connection.query(sql, [note, last_modified, id], (error, results) => {
     if (error) throw error;
     console.log(results);
   });
