@@ -27,8 +27,36 @@ connection.connect(function (err) {
   console.log("connected");
 });
 
+//filtering ideas
+// WHERE priority BETWEEN 4 AND 5 -- high priority games
+// WHERE priority BETWEEN 2 AND 3 -- medium priority
+// WHERE priority = 1 -- lol never gonna play
+// WHERE status = "Completed"
+// WHERE status = "In Progress" -- games that I am playing
+// WHERE status = "Lightly/Unplayed"
+// ORDER BY priority DESC -- highest wants first
+// ORDER BY rating
+
+const filters = {
+  priority: {
+    High: "WHERE priority BETWEEN 4 AND 5",
+    Medium: "WHERE priority BETWEEN 2 AND 3",
+    Low: "WHERE priority = 1",
+  },
+};
+
 app.get("/", (req, res) => {
   const sql = "SELECT * FROM game_list";
+  connection.query(sql, (error, results) => {
+    if (error) throw error;
+    res.send(results);
+  });
+});
+
+app.get("/filter", (req, res) => {
+  const { filterBy, param } = req.query;
+  const filterString = filters[filterBy][param];
+  const sql = `SELECT * FROM game_list ${filterString};`; //ain't this convienent
   connection.query(sql, (error, results) => {
     if (error) throw error;
     res.send(results);
