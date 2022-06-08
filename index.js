@@ -37,11 +37,26 @@ connection.connect(function (err) {
 // ORDER BY priority DESC -- highest wants first
 // ORDER BY rating
 
-const filters = {
-  priority: {
-    High: "WHERE priority BETWEEN 4 AND 5",
-    Medium: "WHERE priority BETWEEN 2 AND 3",
-    Low: "WHERE priority = 1",
+const conversions = {
+  categories: {
+    priority: {
+      High: "WHERE priority BETWEEN 4 AND 5",
+      Medium: "WHERE priority BETWEEN 2 AND 3",
+      Low: "WHERE priority = 1",
+    },
+    status: {
+      Completed: "WHERE status = 'Completed'",
+      "In Progress": "WHERE status = 'In Progress'",
+      "Lightly/Unplayed": "WHERE status = 'Lightly/Unplayed'",
+    },
+    //honestly, probably going to change status to numbers then keep a translation table to make filtering easy
+    rating: {
+      //will fill this out later
+    },
+  },
+  orderDirections: {
+    "High -> Low": "DESC",
+    "Low -> High": "ASC",
   },
 };
 
@@ -54,9 +69,20 @@ app.get("/", (req, res) => {
 });
 
 app.get("/filter", (req, res) => {
-  const { filterBy, param } = req.query;
-  const filterString = filters[filterBy][param];
-  const sql = `SELECT * FROM game_list ${filterString};`; //ain't this convienent
+  const { filter, filterParam, orderBy, orderD } = req.query;
+  let filtering = "";
+  let ordering = "";
+  if (filter !== "N/A") {
+    filtering = conversions.categories[filter][filterParam];
+  }
+  if (orderBy !== "N/A") {
+    ordering = `ORDER BY ${orderBy.toLowerCase()} ${
+      conversions.orderDirections[orderD]
+    }`;
+  } //motherfuckin build a SQL workshop
+  //should eventually move this and all the associated stuff (conversions variable) into a separate helper
+  const sql = `SELECT * FROM game_list ${filtering} ${ordering};`;
+
   connection.query(sql, (error, results) => {
     if (error) throw error;
     res.send(results);
