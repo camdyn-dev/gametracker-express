@@ -45,13 +45,17 @@ const conversions = {
       Low: "WHERE priority = 1",
     },
     status: {
-      Completed: "WHERE status = 'Completed'",
-      "In Progress": "WHERE status = 'In Progress'",
-      "Lightly/Unplayed": "WHERE status = 'Lightly/Unplayed'",
+      Completed: "WHERE status = 3",
+      "In Progress": "WHERE status = 2",
+      "Lightly/Unplayed": "WHERE status = 1",
+      //Similar idea to rating, might add a category like "Not going to play" for crappy games
     },
     //honestly, probably going to change status to numbers then keep a translation table to make filtering easy
     rating: {
-      //will fill this out later
+      "Worth it": "WHERE rating BETWEEN 3 AND 4",
+      "Not worth it": "WHERE rating BETWEEN 1 AND 2",
+      "Playing/Dunno": "WHERE rating = 0",
+      //Think I'll change rating to default to 0 and display a different icon while it's in progress
     },
   },
   orderDirections: {
@@ -69,13 +73,16 @@ app.get("/", (req, res) => {
 });
 
 app.get("/filter", (req, res) => {
-  const { filter, filterParam, orderBy, orderD } = req.query;
+  let { filter, filterParam, orderBy, orderD } = req.query; //don't really like making it a let, but this is fine ig, will work better when I seperate the logic into it's own file
   let filtering = "";
   let ordering = "";
   if (filter !== "N/A") {
     filtering = conversions.categories[filter][filterParam];
   }
   if (orderBy !== "N/A") {
+    if (orderBy === "Post date") {
+      orderBy = orderBy.replace(" ", "_");
+    }
     ordering = `ORDER BY ${orderBy.toLowerCase()} ${
       conversions.orderDirections[orderD]
     }`;
