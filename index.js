@@ -48,6 +48,7 @@ const conversions = {
       Completed: "WHERE status = 3",
       "In Progress": "WHERE status = 2",
       "Lightly/Unplayed": "WHERE status = 1",
+      "Stopped Playing": "WHERE status = 0",
       //Similar idea to rating, might add a category like "Not going to play" for crappy games
     },
     //honestly, probably going to change status to numbers then keep a translation table to make filtering easy
@@ -83,6 +84,7 @@ app.get("/filter", (req, res) => {
     if (orderBy === "Post date") {
       orderBy = orderBy.replace(" ", "_");
     }
+
     ordering = `ORDER BY ${orderBy.toLowerCase()} ${
       conversions.orderDirections[orderD]
     }`;
@@ -119,9 +121,14 @@ app.get("/notes/:id", (req, res) => {
 });
 
 app.post("/", (req, res) => {
-  const { title, image_source, status, priority, rating } = req.body;
-  const sql = "INSERT INTO game_list SET ?"; //yeah yeah I know, wrong naming convention, lick my booty
+  let { title, image_source, status, priority, rating } = req.body;
+  const sql = "INSERT INTO game_list SET ?";
 
+  if (status == 3 || status == 0) {
+    priority = 0;
+  } else {
+    rating = 0;
+  } //same as below
   connection.query(
     sql,
     { title, image_source, status, priority, rating },
@@ -144,7 +151,13 @@ app.post("/:id", (req, res) => {
 
 app.put("/games/:id", (req, res) => {
   const { id } = req.params;
-  const { title, image_source, status, priority, rating } = req.body;
+  let { title, image_source, status, priority, rating } = req.body;
+  if (status == 3 || status == 0) {
+    priority = 0;
+  } else {
+    rating = 0;
+  } //if a game is complete, set the priority to 0, otherwise, set the rating to 0
+  // validation is also on the client side, will figure out which to keep
   const sql =
     "UPDATE game_list SET title = ?, image_source = ?, status = ?, priority = ?, rating = ? WHERE id = ?";
   connection.query(
