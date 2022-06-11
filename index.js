@@ -30,7 +30,7 @@ connection.connect(function (err) {
   console.log("connected");
 });
 
-app.get("/", (req, res) => {
+app.get("/games", (req, res) => {
   const sql = "SELECT * FROM game_list";
   connection.query(sql, (error, results) => {
     if (error) throw error;
@@ -38,7 +38,7 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/filter", (req, res) => {
+app.get("/games/filter", (req, res) => {
   const { filter, filterParam, orderBy, orderD } = req.query;
   const sql = createSql(filter, filterParam, orderBy, orderD);
 
@@ -48,7 +48,7 @@ app.get("/filter", (req, res) => {
   });
 });
 
-app.get("/:id", (req, res) => {
+app.get("/games/:id", (req, res) => {
   const { id } = req.params;
   const sql = "SELECT * FROM game_list WHERE id = ?";
   connection.query(sql, [id], (error, results) => {
@@ -70,7 +70,7 @@ app.get("/notes/:id", (req, res) => {
   });
 });
 
-app.post("/", (req, res) => {
+app.post("/games", (req, res) => {
   let { title, image_source, status, priority, rating } = req.body;
   const sql = "INSERT INTO game_list SET ?";
 
@@ -89,7 +89,7 @@ app.post("/", (req, res) => {
   );
 });
 
-app.post("/:id", (req, res) => {
+app.post("/notes/:id", (req, res) => {
   const { note, game_id } = req.body;
   const sql = "INSERT INTO game_notes SET ?";
   // only inserting the gameId and noteText, everything else is automatically added
