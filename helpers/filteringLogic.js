@@ -42,18 +42,21 @@ function createSql(category, filter, orderBy, direction) {
     }
     if (orderBy !== "N/A") {
       orderBy = orderBy.toLowerCase();
-      if (category !== "N/A") {
-        orderStr += " AND";
-      }
+      // if (category !== "N/A") {
+      //   orderStr += " AND";
+      // }
       switch (orderBy) {
         case "post date":
           orderBy = orderBy.replace(" ", "_");
           break;
         case "priority":
-          orderStr += " rating = 0";
+          orderStr += " AND rating = 0";
           break;
         case "rating":
-          orderStr += " priority = 0";
+          orderStr += " AND priority = 0";
+          break;
+        case "status":
+          //might need to put some logic here? I dunno
           break;
         default:
           console.log("ERROR: Invalid option!");
